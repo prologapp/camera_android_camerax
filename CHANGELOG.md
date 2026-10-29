@@ -1,3 +1,11 @@
+## 0.7.2 (fork prologapp)
+
+* Porta da 0.7.3 a correção do `videoBitrate` ignorado na gravação de vídeo
+  (`Recorder` passa a receber `targetVideoEncodingBitRate`). Só essa linha
+  muda em relação à tag `camera_android_camerax-v0.7.2` do flutter/packages
+  (commit 8b09614ab528d4c1098582d09df7d74d2b7b7eec). A 0.7.3 exige
+  Flutter 3.44; este fork existe enquanto o PrologFlutter está na 3.35.x.
+
 ## 0.7.2
 
 * Bumps camerax_version from 1.5.3 to 1.6.0.

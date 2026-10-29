@@ -1,3 +1,11 @@
+> **Fork da Prolog.** Cópia da tag `camera_android_camerax-v0.7.2` do
+> [flutter/packages](https://github.com/flutter/packages) com uma única mudança:
+> a linha da 0.7.3 que passa `targetVideoEncodingBitRate` ao `Recorder`
+> (sem ela o `videoBitrate` do app é ignorado no Android). A 0.7.3 oficial exige
+> Flutter 3.44; quando o PrologFlutter subir, apague o `dependency_overrides` e
+> volte ao pacote do pub.dev. Usado pelo PrologFlutter via `dependency_overrides`
+> fixado por SHA completo (PL-19793).
+
 # camera\_android\_camerax
 
 The Android implementation of [`camera`][1] built with the [CameraX library][2].
