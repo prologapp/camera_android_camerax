@@ -1,9 +1,15 @@
 ## 0.7.2 (fork prologapp)
 
+Mudanças em relação à tag `camera_android_camerax-v0.7.2` do flutter/packages
+(commit 8b09614ab528d4c1098582d09df7d74d2b7b7eec):
+
+* Preenche o `lensType` das `CameraDescription`s de `availableCameras` pelo
+  `CameraInfo.getIntrinsicZoomRatio` do CameraX: traseira abaixo de 1.0 vira
+  `ultraWide`, acima de 1.0 vira `telephoto`; 1.0, frontal, externa ou erro
+  ficam `unknown`. Backport de flutter/packages#12564 (ainda aberto), com uma
+  diferença: só a traseira é classificada (PL-22279).
 * Porta da 0.7.3 a correção do `videoBitrate` ignorado na gravação de vídeo
-  (`Recorder` passa a receber `targetVideoEncodingBitRate`). Só essa linha
-  muda em relação à tag `camera_android_camerax-v0.7.2` do flutter/packages
-  (commit 8b09614ab528d4c1098582d09df7d74d2b7b7eec). A 0.7.3 exige
+  (`Recorder` passa a receber `targetVideoEncodingBitRate`). A 0.7.3 exige
   Flutter 3.44; este fork existe enquanto o PrologFlutter está na 3.35.x.
 
 ## 0.7.2

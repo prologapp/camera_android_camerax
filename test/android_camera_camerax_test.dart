@@ -546,9 +546,17 @@ void main() {
       );
       when(mockBackCameraInfo.sensorRotationDegrees).thenReturn(0);
       when(mockBackCameraInfo.lensFacing).thenReturn(LensFacing.back);
+      // An intrinsic zoom ratio of 1.0 identifies the default camera of a lens
+      // facing direction, which maps to CameraLensType.unknown.
+      when(
+        mockBackCameraInfo.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) async => 1.0);
 
       when(mockFrontCameraInfo.sensorRotationDegrees).thenReturn(90);
       when(mockFrontCameraInfo.lensFacing).thenReturn(LensFacing.front);
+      when(
+        mockFrontCameraInfo.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) async => 1.0);
 
       final List<CameraDescription> cameraDescriptions = await camera
           .availableCameras();
@@ -568,6 +576,106 @@ void main() {
       }
     },
   );
+
+  group('availableCameras reports the lens type of each camera', () {
+    /// Roda `availableCameras` com uma única câmera virada para [lensFacing],
+    /// cujo `getIntrinsicZoomRatio` se comporta como [intrinsicZoomRatio], e
+    /// devolve o [CameraLensType] informado para ela.
+    Future<CameraLensType> lensTypeForIntrinsicZoomRatio(
+      Future<double> Function() intrinsicZoomRatio, {
+      LensFacing lensFacing = LensFacing.back,
+      MockCameraInfo? cameraInfo,
+    }) async {
+      final camera = AndroidCameraCameraX();
+      final mockProcessCameraProvider = MockProcessCameraProvider();
+      final MockCameraInfo mockCameraInfo = cameraInfo ?? MockCameraInfo();
+
+      PigeonOverrides.processCameraProvider_getInstance = () async =>
+          mockProcessCameraProvider;
+      PigeonOverrides.camera2CameraInfo_from = ({required dynamic cameraInfo}) {
+        final camera2CameraInfo = MockCamera2CameraInfo();
+        when(camera2CameraInfo.getCameraId()).thenAnswer((_) async => '0');
+        return camera2CameraInfo;
+      };
+      PigeonOverrides.systemServicesManager_new =
+          ({
+            required void Function(SystemServicesManager, String) onCameraError,
+          }) {
+            return MockSystemServicesManager();
+          };
+
+      when(
+        mockProcessCameraProvider.getAvailableCameraInfos(),
+      ).thenAnswer((_) async => <MockCameraInfo>[mockCameraInfo]);
+      when(mockCameraInfo.sensorRotationDegrees).thenReturn(0);
+      when(mockCameraInfo.lensFacing).thenReturn(lensFacing);
+      when(
+        mockCameraInfo.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) => intrinsicZoomRatio());
+
+      final List<CameraDescription> cameraDescriptions = await camera
+          .availableCameras();
+      expect(cameraDescriptions, hasLength(1));
+      return cameraDescriptions.single.lensType;
+    }
+
+    test(
+      'as ultraWide when the intrinsic zoom ratio is less than 1.0',
+      () async {
+        expect(
+          await lensTypeForIntrinsicZoomRatio(() async => 0.5),
+          CameraLensType.ultraWide,
+        );
+      },
+    );
+
+    test(
+      'as telephoto when the intrinsic zoom ratio is greater than 1.0',
+      () async {
+        expect(
+          await lensTypeForIntrinsicZoomRatio(() async => 2.0),
+          CameraLensType.telephoto,
+        );
+      },
+    );
+
+    test('as unknown when the intrinsic zoom ratio is exactly 1.0', () async {
+      // 1.0 is ambiguous: CameraX reports it for the default camera of a lens
+      // facing direction, but it is also the value of
+      // INTRINSIC_ZOOM_RATIO_UNKNOWN, which is returned when the ratio cannot
+      // be computed. It must therefore not be reported as CameraLensType.wide.
+      expect(
+        await lensTypeForIntrinsicZoomRatio(() async => 1.0),
+        CameraLensType.unknown,
+      );
+    });
+
+    test('as unknown when retrieving the intrinsic zoom ratio fails', () async {
+      expect(
+        await lensTypeForIntrinsicZoomRatio(
+          () async => throw PlatformException(code: 'testErrorCode'),
+        ),
+        CameraLensType.unknown,
+      );
+    });
+
+    test(
+      'as unknown for a front camera, without querying its intrinsic zoom ratio',
+      () async {
+        final mockCameraInfo = MockCameraInfo();
+
+        expect(
+          await lensTypeForIntrinsicZoomRatio(
+            () async => 0.5,
+            lensFacing: LensFacing.front,
+            cameraInfo: mockCameraInfo,
+          ),
+          CameraLensType.unknown,
+        );
+        verifyNever(mockCameraInfo.getIntrinsicZoomRatio());
+      },
+    );
+  });
 
   test(
     'createCamera requests permissions, starts listening for device orientation changes, updates camera state observers, and returns flutter surface texture ID',
@@ -1717,6 +1825,17 @@ void main() {
       when(mockFrontCameraInfo.lensFacing).thenReturn(LensFacing.front);
       when(mockBackCameraInfoOne.lensFacing).thenReturn(LensFacing.back);
       when(mockBackCameraInfoTwo.lensFacing).thenReturn(LensFacing.back);
+      // An intrinsic zoom ratio of 1.0 identifies the default camera of a lens
+      // facing direction, which maps to CameraLensType.unknown.
+      when(
+        mockFrontCameraInfo.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) async => 1.0);
+      when(
+        mockBackCameraInfoOne.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) async => 1.0);
+      when(
+        mockBackCameraInfoTwo.getIntrinsicZoomRatio(),
+      ).thenAnswer((_) async => 1.0);
 
       // Mock/Detached objects for (typically attached) objects created by
       // createCamera.
