@@ -926,7 +926,7 @@ enum CameraStateType {
   unknown,
 }
 
-/// The types (T) properly wrapped to be used as a LiveData<T>.
+/// The types (T) properly wrapped to be used as a `LiveData<T>`.
 enum LiveDataSupportedType { cameraState, zoomState }
 
 /// Video quality constraints that will be used by a QualitySelector to choose
@@ -2279,6 +2279,48 @@ class CameraInfo extends PigeonInternalProxyApiBaseClass {
       );
     } else {
       return (pigeonVar_replyList[0] as LiveData?)!;
+    }
+  }
+
+  /// Returns the intrinsic zoom ratio of this camera.
+  ///
+  /// The intrinsic zoom ratio is the ratio of the camera's field of view to
+  /// that of the default camera with the same lens facing direction. A ratio
+  /// smaller than 1.0 describes a wider field of view than the default camera
+  /// (an ultra wide lens), and a ratio larger than 1.0 describes a narrower
+  /// field of view (a telephoto lens).
+  ///
+  /// See https://developer.android.com/reference/androidx/camera/core/CameraInfo#getIntrinsicZoomRatio().
+  Future<double> getIntrinsicZoomRatio() async {
+    final _PigeonInternalProxyApiBaseCodec pigeonChannelCodec =
+        _pigeonVar_codecCameraInfo;
+    final BinaryMessenger? pigeonVar_binaryMessenger = pigeon_binaryMessenger;
+    const pigeonVar_channelName =
+        'dev.flutter.pigeon.camera_android_camerax.CameraInfo.getIntrinsicZoomRatio';
+    final pigeonVar_channel = BasicMessageChannel<Object?>(
+      pigeonVar_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: pigeonVar_binaryMessenger,
+    );
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(
+      <Object?>[this],
+    );
+    final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
+    if (pigeonVar_replyList == null) {
+      throw _createConnectionError(pigeonVar_channelName);
+    } else if (pigeonVar_replyList.length > 1) {
+      throw PlatformException(
+        code: pigeonVar_replyList[0]! as String,
+        message: pigeonVar_replyList[1] as String?,
+        details: pigeonVar_replyList[2],
+      );
+    } else if (pigeonVar_replyList[0] == null) {
+      throw PlatformException(
+        code: 'null-error',
+        message: 'Host platform returned null value for non-null return value.',
+      );
+    } else {
+      return (pigeonVar_replyList[0] as double?)!;
     }
   }
 
