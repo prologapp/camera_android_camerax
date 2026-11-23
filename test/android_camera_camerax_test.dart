@@ -659,22 +659,27 @@ void main() {
       );
     });
 
-    test(
-      'as unknown for a front camera, without querying its intrinsic zoom ratio',
-      () async {
-        final mockCameraInfo = MockCameraInfo();
+    for (final lensFacing in <LensFacing>[
+      LensFacing.front,
+      LensFacing.external,
+    ]) {
+      test(
+        'as unknown for a ${lensFacing.name} camera, without querying its intrinsic zoom ratio',
+        () async {
+          final mockCameraInfo = MockCameraInfo();
 
-        expect(
-          await lensTypeForIntrinsicZoomRatio(
-            () async => 0.5,
-            lensFacing: LensFacing.front,
-            cameraInfo: mockCameraInfo,
-          ),
-          CameraLensType.unknown,
-        );
-        verifyNever(mockCameraInfo.getIntrinsicZoomRatio());
-      },
-    );
+          expect(
+            await lensTypeForIntrinsicZoomRatio(
+              () async => 0.5,
+              lensFacing: lensFacing,
+              cameraInfo: mockCameraInfo,
+            ),
+            CameraLensType.unknown,
+          );
+          verifyNever(mockCameraInfo.getIntrinsicZoomRatio());
+        },
+      );
+    }
   });
 
   test(
