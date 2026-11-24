@@ -1,10 +1,19 @@
 > **Fork da Prolog.** Cópia da tag `camera_android_camerax-v0.7.2` do
-> [flutter/packages](https://github.com/flutter/packages) com uma única mudança:
-> a linha da 0.7.3 que passa `targetVideoEncodingBitRate` ao `Recorder`
-> (sem ela o `videoBitrate` do app é ignorado no Android). A 0.7.3 oficial exige
-> Flutter 3.44; quando o PrologFlutter subir, apague o `dependency_overrides` e
-> volte ao pacote do pub.dev. Usado pelo PrologFlutter via `dependency_overrides`
-> fixado por SHA completo (PL-19793).
+> [flutter/packages](https://github.com/flutter/packages) com duas mudanças:
+>
+> - a linha da 0.7.3 que passa `targetVideoEncodingBitRate` ao `Recorder`
+>   (sem ela o `videoBitrate` do app é ignorado no Android; PL-19793);
+> - o `lensType` das câmeras de `availableCameras`, lido do
+>   `CameraInfo.getIntrinsicZoomRatio` do CameraX (sem ele o seletor 0.5x não
+>   aparece nos Androids que expõem a ultra wide como câmera separada;
+>   PL-22279). Backport de
+>   [flutter/packages#12564](https://github.com/flutter/packages/pull/12564),
+>   ainda aberto no upstream.
+>
+> A 0.7.3 oficial exige Flutter 3.44. Só volte ao pacote do pub.dev (apagando o
+> `dependency_overrides`) quando o PrologFlutter subir **e** a versão oficial
+> trouxer o `lensType` no Android. Usado pelo PrologFlutter via
+> `dependency_overrides` fixado por SHA completo.
 
 # camera\_android\_camerax
 
